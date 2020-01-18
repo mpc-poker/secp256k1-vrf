@@ -3,7 +3,7 @@
 
 #define memzero(ptr,size) memset(ptr,0,size);
 
-#define VRF_DEBUG_PRINT(...)
+#define VRF_DEBUG_PRINT(X)
 
 static void sha256(unsigned char *result, const void *data, const unsigned int len) {
     secp256k1_sha256 sha256;
@@ -256,7 +256,7 @@ static int vrf_hash_to_curve_tai(secp256k1_ge *point, const secp256k1_ge *Y_poin
         /* arbitrary_string_to_point (inplace) */
         hash_string[0] = 0x02;
         if (string_to_point(point, hash_string) && !secp256k1_ge_is_infinity(point)) {
-          VRF_DEBUG_PRINT("try_and_increment succeded on ctr = %d\n", ctr);
+          VRF_DEBUG_PRINT(("try_and_increment succeded on ctr = %d\n", ctr));
           free(full_string);
           return 1;
         }
@@ -366,7 +366,7 @@ int secp256k1_vrf_prove(
     unsigned char proof[81],
     const unsigned char *seckey,
     secp256k1_pubkey* pubkey,
-    const unsigned char *msg,
+    const void *msg,
     const unsigned int msglen
 ){
     secp256k1_ge Q;
@@ -464,7 +464,7 @@ int secp256k1_vrf_verify(
     unsigned char output[32],
     const unsigned char proof[81],
     const unsigned char pk[33],
-    const unsigned char *msg, const unsigned int msglen
+    const void *msg, const unsigned int msglen
 ){
     secp256k1_ge Y;
     if ( vrf_validate_key(&Y, pk) && vrf_verify(&Y, proof, msg, msglen)) {
