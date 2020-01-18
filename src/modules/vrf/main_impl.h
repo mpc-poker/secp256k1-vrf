@@ -302,6 +302,41 @@ static void vrf_nonce_generation(unsigned char nonce32[32], const unsigned char 
   }
 }
 
+static int vrf_decode_proof(
+    secp256k1_ge *Gamma,
+    unsigned char c[16],
+    unsigned char s[32],
+    const unsigned char pi[81]
+){
+    /* gamma = decode_point(pi[0:32]) */
+    if (string_to_point(Gamma, pi) == 0) {
+        return 0;
+    }
+    memcpy(c, pi+33, 16); /* c = pi[33:48] */
+    memcpy(s, pi+49, 32); /* s = pi[49:80] */
+    return 1;
+}
+
+int secp256k1_vrf_proof_to_hash(
+    unsigned char beta[32],
+    const unsigned char pi[81]
+){
+    unsigned char c_scalar[16], s_scalar[32];
+    unsigned char hash_input[2+33];
+    secp256k1_ge Gamma_point;
+    /* (Gamma, c, s) = ECVRF_decode_proof(pi_string) */
+    if (!vrf_decode_proof(&Gamma_point, c_scalar, s_scalar, pi)) {
+        return 0;
+    }
+    /* beta_string = Hash(suite_string || three_string || point_to_string(Gamma)) */
+    hash_input[0] = VRF_SUITE;
+    hash_input[1] = 0x03;
+    /* no need to multiply by a cofactor because it is 1 for secp256k1 curve */
+    point_to_string(hash_input+2, &Gamma_point);
+    sha256(beta, hash_input, sizeof hash_input);
+    return 1;
+}
+
 /******************************************************************************/
 /** PROVE *********************************************************************/
 /******************************************************************************/
@@ -384,41 +419,6 @@ int secp256k1_vrf_prove(
 /** VERIFICATION **************************************************************/
 /******************************************************************************/
 
-static int vrf_decode_proof(
-    secp256k1_ge *Gamma,
-    unsigned char c[16],
-    unsigned char s[32],
-    const unsigned char pi[81]
-){
-    /* gamma = decode_point(pi[0:32]) */
-    if (string_to_point(Gamma, pi) == 0) {
-        return 0;
-    }
-    memcpy(c, pi+33, 16); /* c = pi[33:48] */
-    memcpy(s, pi+49, 32); /* s = pi[49:80] */
-    return 1;
-}
-
-static int vrf_proof_to_hash(
-    unsigned char beta[32],
-    const unsigned char pi[81]
-){
-    unsigned char c_scalar[16], s_scalar[32];
-    unsigned char hash_input[2+33];
-    secp256k1_ge Gamma_point;
-    /* (Gamma, c, s) = ECVRF_decode_proof(pi_string) */
-    if (!vrf_decode_proof(&Gamma_point, c_scalar, s_scalar, pi)) {
-        return 0;
-    }
-    /* beta_string = Hash(suite_string || three_string || point_to_string(Gamma)) */
-    hash_input[0] = VRF_SUITE;
-    hash_input[1] = 0x03;
-    /* no need to multiply by a cofactor because it is 1 for secp256k1 curve */
-    point_to_string(hash_input+2, &Gamma_point);
-    sha256(beta, hash_input, sizeof hash_input);
-    return 1;
-}
-
 static int vrf_validate_key(secp256k1_ge *Y_point, const unsigned char pk_string[33]) {
     if (string_to_point(Y_point, pk_string) == 0 || secp256k1_ge_is_infinity(Y_point)) {
         return 0;
@@ -468,7 +468,7 @@ int secp256k1_vrf_verify(
 ){
     secp256k1_ge Y;
     if ( vrf_validate_key(&Y, pk) && vrf_verify(&Y, proof, msg, msglen)) {
-        return vrf_proof_to_hash(output, proof);
+        return secp256k1_vrf_proof_to_hash(output, proof);
     } else {
         return 0;
     }
