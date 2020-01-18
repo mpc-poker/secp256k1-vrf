@@ -1,5 +1,5 @@
-libsecp256k1
-============
+libsecp256k1-vrf
+================
 
 [![Build Status](https://travis-ci.org/bitcoin-core/secp256k1.svg?branch=master)](https://travis-ci.org/bitcoin-core/secp256k1)
 
@@ -106,7 +106,9 @@ See [SECURITY.md](SECURITY.md)
 Verifiable Random Function (VRF)
 ------------------
 
-This fork has an implementation of ECVRF based on the [IETF draft 05](https://tools.ietf.org/id/draft-irtf-cfrg-vrf-05.html) using the secp256k1 curve.
+This library has an implementation of ECVRF based on the [IETF draft 05](https://tools.ietf.org/id/draft-irtf-cfrg-vrf-05.html) using the secp256k1 curve.
+
+It was implemented as a fork because the parent library does not export the required functions.
 
 Example usage:
 
@@ -118,6 +120,13 @@ Example usage:
   size_t msglen = strlen(msg);
 
   success = secp256k1_vrf_prove(proof, seckey, &pubkey, msg, msglen);
+```
+
+If the prover wants to access the generated random output:
+
+```C
+  unsigned char output[32];
+  success = secp256k1_vrf_proof_to_hash(output, proof);
 ```
 
 ### Verifying
