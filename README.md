@@ -1,5 +1,5 @@
-libsecp256k1
-============
+libsecp256k1-vrf
+================
 
 [![Build Status](https://api.cirrus-ci.com/github/bitcoin-core/secp256k1.svg?branch=master)](https://cirrus-ci.com/github/bitcoin-core/secp256k1)
 
@@ -70,13 +70,27 @@ libsecp256k1 is built using autotools:
 
 To compile optional modules (such as Schnorr signatures), you need to run `./configure` with additional flags (such as `--enable-module-schnorrsig`). Run `./configure --help` to see the full list of available flags.
 
+Building for iOS:
+
+    $ ./autogen.sh
+    $ ./makeios
+
+The libraries will be on the `ios` folder
+
+Exhaustive tests
+-----------
+
+    $ ./exhaustive_tests
+
+With valgrind, you might need to increase the max stack size:
+
 Usage examples
 -----------
   Usage examples can be found in the [examples](examples) directory. To compile them you need to configure with `--enable-examples`.
   * [ECDSA example](examples/ecdsa.c)
   * [Schnorr signatures example](examples/schnorr.c)
   * [Deriving a shared secret (ECDH) example](examples/ecdh.c)
-  To compile the Schnorr signature and ECDH examples, you also need to configure with `--enable-module-schnorrsig` and `--enable-module-ecdh`.
+    To compile the Schnorr signature and ECDH examples, you also need to configure with `--enable-module-schnorrsig` and `--enable-module-ecdh`.
 
 Test coverage
 -----------
@@ -116,3 +130,55 @@ Reporting a vulnerability
 ------------
 
 See [SECURITY.md](SECURITY.md)
+
+Verifiable Random Function (VRF)
+------------------
+
+This library has an implementation of an ECVRF based on the [IETF draft 05](https://tools.ietf.org/id/draft-irtf-cfrg-vrf-05.html) using the secp256k1 curve, `SHA256` as hash function and `try-and-increment` as hash to curve method (cipher suite `SECP256K1_SHA256_TAI`). The cipher suite code used is `0xFE` for compatibility with other implementations.
+
+It was implemented as a fork because the parent library does not export the required functions.
+
+Example usage:
+
+### Proving
+
+```C
+  unsigned char proof[81];
+  char *msg = "sample";
+  size_t msglen = strlen(msg);
+
+  success = secp256k1_vrf_prove(proof, seckey, &pubkey, msg, msglen);
+```
+
+If the prover wants to access the generated random output:
+
+```C
+  unsigned char output[32];
+  success = secp256k1_vrf_proof_to_hash(output, proof);
+```
+
+### Verifying
+
+```C
+  unsigned char output[32];
+  char *msg = "sample";
+  size_t msglen = strlen(msg);
+
+  success = secp256k1_vrf_verify(output, proof, pk, msg, msglen);
+```
+
+For more details on usage check the [tests](src/modules/vrf/tests_impl.h)
+
+The library is compiled under a different name from the parent one, so both can be present on the same device.
+
+Including the header:
+
+```C
+#include "secp256k1.h"
+```
+
+Linking to the library:
+
+```
+gcc file.c -lsecp256k1
+```
