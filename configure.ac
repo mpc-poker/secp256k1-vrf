@@ -1,5 +1,5 @@
 AC_PREREQ([2.60])
-AC_INIT([libsecp256k1],[0.1])
+AC_INIT([libsecp256k1-vrf],[0.1])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CANONICAL_HOST
@@ -140,7 +140,7 @@ AC_ARG_ENABLE(external_default_callbacks,
     [use_external_default_callbacks=no])
 
 AC_ARG_ENABLE(jni,
-    AS_HELP_STRING([--enable-jni],[enable libsecp256k1_jni [default=no]]),
+    AS_HELP_STRING([--enable-jni],[enable libsecp256k1-vrf_jni [default=no]]),
     [use_jni=$enableval],
     [use_jni=no])
 
