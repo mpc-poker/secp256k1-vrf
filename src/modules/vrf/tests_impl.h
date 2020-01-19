@@ -1,3 +1,8 @@
+/**********************************************************************
+ * Copyright (c) 2020 Aergo Foundation                                *
+ * Distributed under the MIT software license, see the accompanying   *
+ * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
+ **********************************************************************/
 
 unsigned char HexToInt(int h){
   CHECK( (h>='0' && h<='9') ||  (h>='a' && h<='f') ||  (h>='A' && h<='F') );
