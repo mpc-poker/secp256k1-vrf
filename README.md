@@ -106,7 +106,7 @@ See [SECURITY.md](SECURITY.md)
 Verifiable Random Function (VRF)
 ------------------
 
-This library has an implementation of ECVRF based on the [IETF draft 05](https://tools.ietf.org/id/draft-irtf-cfrg-vrf-05.html) using the secp256k1 curve.
+This library has an implementation of an ECVRF based on the [IETF draft 05](https://tools.ietf.org/id/draft-irtf-cfrg-vrf-05.html) using the secp256k1 curve, `SHA256` as hash function and `try-and-increment` as hash to curve method (cipher suite `SECP256K1_SHA256_TAI`). The cipher suite code used is `0xFE` for compatibility with other implementations.
 
 It was implemented as a fork because the parent library does not export the required functions.
 
