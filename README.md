@@ -140,3 +140,17 @@ If the prover wants to access the generated random output:
 ```
 
 For more details on usage check the [tests](src/modules/vrf/tests_impl.h)
+
+The library is compiled under a different name from the parent one, so both can be present on the same device.
+
+Including the header:
+
+```C
+#include "secp256k1-vrf.h"
+```
+
+Linking to the library:
+
+```
+gcc file.c -lsecp256k1-vrf
+```
