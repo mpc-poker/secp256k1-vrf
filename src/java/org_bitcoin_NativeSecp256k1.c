@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "org_bitcoin_NativeSecp256k1.h"
-#include "include/secp256k1.h"
+#include "include/secp256k1-vrf.h"
 #include "include/secp256k1_ecdh.h"
 #include "include/secp256k1_recovery.h"
 

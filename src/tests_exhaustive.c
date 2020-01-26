@@ -21,7 +21,7 @@
 #define EXHAUSTIVE_TEST_LAMBDA 9   /* cube root of 1 mod 13 */
 #endif
 
-#include "include/secp256k1.h"
+#include "include/secp256k1-vrf.h"
 #include "group.h"
 #include "secp256k1.c"
 #include "testrand_impl.h"

@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-#include "include/secp256k1.h"
+#include "include/secp256k1-vrf.h"
 #include "include/secp256k1_ecdh.h"
 #include "util.h"
 #include "bench.h"
