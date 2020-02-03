@@ -371,15 +371,15 @@ static int vrf_prove(
     if (!secp256k1_vrf_ecmult(&kH_point, k_scalar, &H_point)) goto loc_cleanup;
 
     /* c = ECVRF_hash_points(h, gamma, k*B, k*H) */
-    vrf_hash_points(c_scalar, &H_point, &Gamma_point, &kB_point, &kH_point);
-    /* zero the remaining 16 bytes of c_scalar */
-    memset(c_scalar+16, 0, 16);
+    vrf_hash_points(c_scalar+16, &H_point, &Gamma_point, &kB_point, &kH_point);
+    /* zero the first 16 bytes of c_scalar */
+    memset(c_scalar, 0, 16);
 
     /* output pi */
     /* pi[0:32] = point_to_string(Gamma) */
     point_to_string(pi, &Gamma_point);
     /* pi[33:48] = c (16 bytes) */
-    memmove(pi+33, c_scalar, 16);
+    memmove(pi+33, c_scalar+16, 16);
     /* pi[49:80] = s = c*x + k (mod q) */
     secp256k1_scalar32_muladd(pi+49, c_scalar, x_scalar, k_scalar);
 
@@ -440,11 +440,12 @@ static int vrf_verify(
     secp256k1_ge H_point, Gamma_point, U_point, V_point;
     secp256k1_ge sB_point, cY_point, sH_point, cGamma_point;
 
-    if (!vrf_decode_proof(&Gamma_point, c_scalar, s_scalar, pi)) {
+    if (!vrf_decode_proof(&Gamma_point, c_scalar+16, s_scalar, pi)) {
         return 0;
     }
 
-    memset(c_scalar+16, 0, 16);
+    /* zero the first 16 bytes of c_scalar */
+    memset(c_scalar, 0, 16);
 
     /* hash to the curve using the try and increment approach */
     if (!vrf_hash_to_curve_tai(&H_point, Y_point, alpha, alphalen)) return 0;
@@ -462,7 +463,7 @@ static int vrf_verify(
     /* c = ECVRF_hash_points(h, gamma, U, V) */
     vrf_hash_points(cprime, &H_point, &Gamma_point, &U_point, &V_point);
 
-    return memcmp(c_scalar, cprime, 16) == 0;
+    return memcmp(c_scalar+16, cprime, 16) == 0;
 }
 
 int secp256k1_vrf_verify(

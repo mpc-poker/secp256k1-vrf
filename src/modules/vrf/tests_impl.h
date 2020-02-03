@@ -61,6 +61,8 @@ void run_vrf_tests(void) {
     print_hex("exp=", exp_nonce, 32);
     print_hex("gen=", gen_nonce, 32);
 
+    CHECK(memcmp(exp_nonce, gen_nonce, 32) == 0);
+
     }
 
 
@@ -79,6 +81,8 @@ void run_vrf_tests(void) {
 
     print_hex("expec=", expected_proof, 81);
     print_hex("proof=", proof, 81);
+
+    CHECK(memcmp(proof, expected_proof, 81) == 0);
 
     }
 
@@ -132,8 +136,9 @@ void run_vrf_tests(void) {
     }
 
 
-#if 0
-    /* test verify */
+    {  /* test verify */
+
+    unsigned char expected_output[32] = {0};
 
     msg = "sample";
     msglen = strlen(msg);
@@ -147,6 +152,9 @@ void run_vrf_tests(void) {
 
     print_hex("expect=", expected_output, 32);
     print_hex("output=", output, 32);
-#endif
+
+    CHECK(memcmp(output, expected_output, 32) == 0);
+
+    }
 
 }
