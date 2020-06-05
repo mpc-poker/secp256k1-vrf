@@ -68,6 +68,13 @@ libsecp256k1 is built using autotools:
     $ make check
     $ sudo make install  # optional
 
+Building for iOS:
+
+    $ ./autogen.sh
+    $ ./makeios
+
+The libraries will be on the `ios` folder
+
 Exhaustive tests
 -----------
 
